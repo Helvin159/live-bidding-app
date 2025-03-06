@@ -1,5 +1,5 @@
 import React from 'react';
-import AuctionComponent from '../../components/AuctionComponent';
+import AuctionComponent from '../../components/AuctionComponent/AuctionComponent';
 
 const Bidding = () => {
   return (
