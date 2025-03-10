@@ -1,9 +1,8 @@
-import AuctionComponent from '../components/AuctionComponent/AuctionComponent';
-
 export default function Home() {
   return (
     <>
-      <AuctionComponent />
+      <h1>Bidding app practice</h1>
+      <h2>Makes use of sockets</h2>
     </>
   );
 }

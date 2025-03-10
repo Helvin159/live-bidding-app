@@ -5,15 +5,18 @@
   "scripts": {
     "dev": "next dev",
     "devTwo": "nodemon",
+    "nodemon": "nodemon",
     "build": "next build",
     "buildTwo": "next build && tsc --project tsconfig.server.json",
     "start": "next start",
     "startTwo": "cross-env NODE_ENV=production node dist/server.js",
-    "lint": "next lint"
+    "lint": "next lint",
+    "tailwind": "npx tailwindcss -i ./src/css/input.css -o ./src/css/output.css --watch"
   },
   "type": "module",
   "dependencies": {
     "cross-env": "^7.0.3",
+    "mongodb": "^6.14.2",
     "next": "15.1.7",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

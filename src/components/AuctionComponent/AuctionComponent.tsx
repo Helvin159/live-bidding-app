@@ -8,9 +8,10 @@ import { NewBidType, PlacedBidsType } from './utils/types';
 // Components
 import CurrentBids from './components/CurrentBids';
 import LatestBids from './components/LatestBids';
+import { placeNewBid } from './utils/socketUtils';
 
 const AuctionComponent = ({
-  auctionId = 'some-id'
+  auctionId = '67cb4a0ac982beec667bb5bf'
 }: {
   auctionId?: string;
 }) => {
@@ -25,56 +26,38 @@ const AuctionComponent = ({
   const nameInput = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    const auctionId = 'some-id';
     socket.emit('joinAuction', auctionId);
-
-    socket.on('newBid', (bid = newBid) => {
-      setPlacedBids(() => [...placedBids, bid]);
-    });
 
     setLastPlacedBid(placedBids.length - 1);
 
-    if (bidAmountInput.current) {
-      if (!bidAmountInput.current.value) {
-        setDisableSubmit(true);
-        return;
-      }
-    }
+    // return () => {
+    //   socket.off('newBid');
+    //   socket.emit('leaveAuction', auctionId);
+    // };
+  }, [newBid, placedBids.length, placedBids, disableSubmit, auctionId]);
 
-    return () => {
-      socket.off('newBid');
-      socket.emit('leaveAuction', auctionId);
-    };
-  }, [newBid, placedBids.length, placedBids, disableSubmit]);
+  socket.on('newBid', (bid = newBid) => {
+    setPlacedBids(() => [...placedBids, bid]);
+    setMinBid(bid.amount);
+
+    console.log(bid, 'new BID');
+  });
 
   const handleSubmit = () => {
     console.log('handleSubmit', placedBids, bidAmountInput?.current?.value);
     console.log(bidAmountInput.current?.value);
 
-    if (bidAmountInput.current?.value) {
-      console.log('minbid', minBid);
-
-      if (parseInt(bidAmountInput.current.value) > minBid) {
-        console.log(bidAmountInput.current?.value);
-        const bid = {
-          amount: bidAmountInput.current?.value,
-          bidder: nameInput.current?.value,
-          auctionId
-        };
-
-        socket.emit('placeBid', { auctionId, bid });
-        setNewBid({
-          amount: bid.amount,
-          bidder: nameInput.current?.value,
-          auctionId
-        });
-
-        setMinBid(parseInt(bidAmountInput.current.value) + 50);
-        bidAmountInput.current.value = '';
-
-        setPlacedBids([...placedBids, bid]);
-      }
-    }
+    placeNewBid({
+      auctionId,
+      minBid,
+      placedBids,
+      bidAmountInput,
+      nameInput,
+      setNewBid,
+      setMinBid,
+      setLastPlacedBid,
+      setPlacedBids
+    });
   };
 
   const handleOnChange = () => {
@@ -99,7 +82,7 @@ const AuctionComponent = ({
   };
 
   return (
-    <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+    <div className='tw-w-full tw-max-w-xl tw-mx-auto'>
       <LatestBids
         lastPlacedBid={lastPlacedBid}
         placedBids={placedBids}
@@ -107,17 +90,18 @@ const AuctionComponent = ({
         minBid={minBid}
       />
 
-      <div>
+      <div className='tw-mx-auto tw-py-8'>
         <label htmlFor='nameInput'>Name</label>
         <input
           type='text'
           ref={nameInput}
           id='nameInput'
-          style={{ width: '100%', height: '2rem' }}
+          placeholder='Name'
+          className='tw-w-full tw-h-8 tw-shadow-lg tw-rounded tw-p-2'
         />
       </div>
 
-      <div>
+      <div className='tw-mx-auto tw-py-8'>
         <label htmlFor='bidInput'>How much will you like to bid?</label>
         <input
           type='number'
@@ -126,12 +110,17 @@ const AuctionComponent = ({
           min={placedBids[lastPlacedBid]?.amount}
           onChange={handleOnChange}
           id='bidInput'
-          style={{ width: '100%', height: '2rem' }}
+          placeholder='Bid'
+          className='tw-w-full tw-h-8 tw-shadow-lg tw-rounded tw-p-2'
         />
       </div>
 
-      <div style={{ padding: '1rem 0 0 0' }}>
-        <button disabled={disableSubmit} onClick={handleSubmit}>
+      <div>
+        <button
+          className='tw-bg-black tw-p-2 tw-shadow tw-rounded tw-text-white'
+          disabled={disableSubmit}
+          onClick={handleSubmit}
+        >
           Place Bid
         </button>
 
