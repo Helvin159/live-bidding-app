@@ -28,6 +28,10 @@ const AuctionComponent = ({
   useEffect(() => {
     socket.emit('joinAuction', auctionId);
 
+    // const test = fetch('/api/db/get/auction-id');
+
+    // console.log(test);
+
     setLastPlacedBid(placedBids.length - 1);
 
     // return () => {

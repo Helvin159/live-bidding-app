@@ -19,13 +19,13 @@ function LatestBids({
         <div>
           <h2>Latest Bids</h2>
           {/* <p>{newBid.bidder}</p> */}
-          <p style={{ fontSize: '24px' }}>
+          <p className='tw-text-2xl'>
             ${placedBids.length > 0 && parseInt(newBid?.amount ?? '0')}
           </p>
         </div>
       ) : null}
 
-      <p style={{ fontSize: '24px' }}>
+      <p className='tw-text-2xl'>
         Minimum bid:{' '}
         {placedBids.length > 0 &&
         typeof placedBids[lastPlacedBid]?.amount === 'string'

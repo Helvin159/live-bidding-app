@@ -5,21 +5,12 @@ import { parse } from 'url';
 import next from 'next';
 import { RequestHandler } from 'next/dist/server/next';
 import { NextWrapperServer } from './types/types';
-import { MongoClient } from 'mongodb';
 
 const port: number = parseInt(process.env.PORT || '3000', 10);
 const dev: boolean = process.env.NODE_ENV !== 'production';
 const app: NextWrapperServer = next({ dev });
 const handle: RequestHandler = app.getRequestHandler();
 
-const mongoClient = new MongoClient(
-  process.env.MONGODB_URI ?? 'mongodb://localhost:27017/bidding-app'
-);
-
-async function getAuctionId() {
-  await mongoClient.connect();
-  return 'connected to mongo';
-}
 /**
  *
  *  @see{@link https://github.com/vercel/next.js/tree/canary/examples/custom-server}
@@ -32,9 +23,9 @@ app.prepare().then(() => {
     handle(req, res, parsedUrl);
   });
 
-  const auctionId = getAuctionId();
+  // const auctionId = getAuctionId();
 
-  console.log(auctionId);
+  // console.log(auctionId);
 
   // Create new IO Object
   const io = new Server(server, {

@@ -4,6 +4,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: live-bidding-app-app:latest
     container_name: bidding-app-container
     ports:
       - "3000:3000"
@@ -27,4 +28,4 @@ services:
 volumes:
   mongo-data:
 
-# const uri = "mongodb+srv://<helvin159@gmail.com>:<DoRa0411!@!@>@cluster22271.zagr6.mongodb.net/?retryWrites=true&w=majority&appName=Cluster22271";
+
