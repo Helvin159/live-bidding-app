@@ -19,9 +19,9 @@ services:
     ports:
       - '27017:27017'
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=helvin159@gmail.com
-      - MONGO_INITDB_ROOT_PASSWORD=DoRa0411!@!@
-      - MONGODB_URI=mongodb+srv://<{MONGO_DB_USER}>:<{MONGO_DB_PASS}>@cluster22271.zagr6.mongodb.net/?retryWrites=true&w=majority&appName=Cluster22271
+      - MONGO_INITDB_ROOT_USERNAME={MONGO_DB_USER}
+      - MONGO_INITDB_ROOT_PASSWORD={MONGO_DB_PASS}
+      - MONGODB_URI={MONGODB_URI}
     volumes:
       - mongo-data:/data/db
 volumes:
