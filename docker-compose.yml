@@ -7,7 +7,7 @@ services:
     image: live-bidding-app-app:latest
     container_name: bidding-app-container
     ports:
-      - "3000:3000"
+      - "3500:3000"
     environment:
       - NODE_ENV=development
     volumes:

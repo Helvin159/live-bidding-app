@@ -47,8 +47,9 @@ export function onNewBidPlaced({
 
     setNewBid({
       amount: bid.amount,
-      bidder: bidderName,
-      auctionId
+      name: bidderName,
+      auction_id: auctionId,
+      timestamp: new Date()
     });
     // Set latest bid
     setLastPlacedBid(parseInt(bid.amount));
@@ -59,7 +60,7 @@ export function onNewBidPlaced({
   });
 }
 
-export function placeNewBid({
+export function onPlaceNewBid({
   auctionId,
   minBid,
   placedBids,
@@ -92,8 +93,9 @@ export function placeNewBid({
       socket.emit('placeBid', { auctionId, bid });
       setNewBid({
         amount: bid.amount,
-        bidder: nameInput.current?.value,
-        auctionId
+        name: nameInput.current?.value,
+        auction_id: auctionId,
+        timestamp: new Date()
       });
 
       bidAmountInput.current.value = '';

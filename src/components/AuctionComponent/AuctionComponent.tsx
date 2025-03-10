@@ -1,14 +1,18 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { socket } from '../../lib/socket';
+import { socket } from '@/lib/socket';
 
 // Types
-import { NewBidType, PlacedBidsType } from './utils/types';
+import { NewBidType } from './utils/types';
+
+// Utils
+// import placeNewBid from '@/server-utils/placeNewBid';
+import { onPlaceNewBid } from './utils/socketUtils';
 
 // Components
 import CurrentBids from './components/CurrentBids';
 import LatestBids from './components/LatestBids';
-import { placeNewBid } from './utils/socketUtils';
+import { IBids } from '../../models/Bids';
 
 const AuctionComponent = ({
   auctionId = '67cb4a0ac982beec667bb5bf'
@@ -16,7 +20,7 @@ const AuctionComponent = ({
   auctionId?: string;
 }) => {
   const [newBid, setNewBid] = useState<NewBidType>(null);
-  const [placedBids, setPlacedBids] = useState<PlacedBidsType>([]);
+  const [placedBids, setPlacedBids] = useState<IBids[]>([]);
   const [lastPlacedBid, setLastPlacedBid] = useState<number>(0);
   const [disableSubmit, setDisableSubmit] = useState<boolean>(false);
   const [minBid, setMinBid] = useState<number>(0);
@@ -28,17 +32,23 @@ const AuctionComponent = ({
   useEffect(() => {
     socket.emit('joinAuction', auctionId);
 
-    // const test = fetch('/api/db/get/auction-id');
+    const getAllBids = async () => {
+      const res = await fetch('/api/db/get/all-bids');
+      const data = await res.json();
+      console.log(data);
 
-    // console.log(test);
+      setPlacedBids(JSON.parse(data.message));
+    };
 
-    setLastPlacedBid(placedBids.length - 1);
+    getAllBids();
 
-    // return () => {
-    //   socket.off('newBid');
-    //   socket.emit('leaveAuction', auctionId);
-    // };
-  }, [newBid, placedBids.length, placedBids, disableSubmit, auctionId]);
+    return () => {
+      socket.off('newBid');
+      socket.emit('leaveAuction', auctionId);
+    };
+  }, [newBid, placedBids.length, disableSubmit, auctionId]);
+
+  console.log(placedBids);
 
   socket.on('newBid', (bid = newBid) => {
     setPlacedBids(() => [...placedBids, bid]);
@@ -51,7 +61,13 @@ const AuctionComponent = ({
     console.log('handleSubmit', placedBids, bidAmountInput?.current?.value);
     console.log(bidAmountInput.current?.value);
 
-    placeNewBid({
+    // placeNewBid({
+    //   name: nameInput.current?.value ?? '',
+    //   amount: parseInt(bidAmountInput.current?.value ?? '0'),
+    //   auctionId
+    // });
+
+    onPlaceNewBid({
       auctionId,
       minBid,
       placedBids,
@@ -65,7 +81,7 @@ const AuctionComponent = ({
   };
 
   const handleOnChange = () => {
-    const latestPlacedBid = parseInt(placedBids[lastPlacedBid]?.amount ?? '0');
+    const latestPlacedBid = placedBids[lastPlacedBid]?.amount ?? '0';
     const newBidToPlace = parseInt(bidAmountInput.current?.value ?? '0');
 
     console.log(

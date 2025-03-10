@@ -1,7 +1,8 @@
 export type NewBidType = {
   amount: string | undefined;
-  bidder: string | undefined;
-  auctionId: string;
+  name: string | undefined;
+  auction_id: string;
+  timestamp: Date;
 } | null;
 
 export type PlacedBidsType = {
