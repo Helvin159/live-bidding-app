@@ -10,3 +10,8 @@ export type PlacedBidsType = {
   bidder: string | undefined;
   auctionId: string;
 }[];
+
+export type AuctionComponentType = {
+  leadName?: string;
+  auctionId?: string;
+};

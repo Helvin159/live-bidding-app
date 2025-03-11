@@ -1,4 +1,4 @@
-import { Schema, models, model, Document, Model } from 'mongoose';
+import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IBids extends Document {
   name: string | undefined;
@@ -7,13 +7,13 @@ export interface IBids extends Document {
   timestamp: Date;
 }
 
-const BidSchema = new Schema({
+const BidsSchema = new Schema({
   auction_id: { type: String, required: true },
   name: { type: String, required: true },
   amount: { type: Number, required: true },
   timestamp: { type: Date }
 });
 
-const Bids: Model<IBids> = models.Bid || model<IBids>('Bid', BidSchema, 'bids');
+const Bids = mongoose.models.Bids || mongoose.model('Bids', BidsSchema, 'bids');
 
 export default Bids;

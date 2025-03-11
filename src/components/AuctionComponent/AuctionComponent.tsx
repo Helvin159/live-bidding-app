@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { socket } from '@/lib/socket';
 
 // Types
-import { NewBidType } from './utils/types';
+import { AuctionComponentType, NewBidType } from './utils/types';
 
 // Utils
 import { getAuctionById, getBidsByAuctionId } from '@/lib/server-utis';
@@ -16,10 +16,6 @@ import { IBids } from '@/models/Bids';
 import CurrentBids from './components/CurrentBids';
 import LatestBids from './components/LatestBids';
 import { AuctionsType } from '@/models/Auctions';
-type AuctionComponentType = {
-  leadName?: string;
-  auctionId?: string;
-};
 
 const AuctionComponent = ({
   auctionId = '67cb4a0ac982beec667bb5bf'
@@ -55,24 +51,32 @@ const AuctionComponent = ({
     setPlacedBids(() => [...placedBids, bid]);
     setMinBid(bid.amount);
 
-    console.log(bid, 'new BID');
+    console.log(bid, 'new BID came in');
   });
 
   const handleSubmit = () => {
     console.log('handleSubmit', placedBids, bidAmountInput?.current?.value);
     console.log(bidAmountInput.current?.value);
 
-    onPlaceNewBid({
-      auctionId,
-      minBid,
-      placedBids,
-      bidAmountInput,
-      nameInput,
-      setNewBid,
-      setMinBid,
-      setLastPlacedBid,
-      setPlacedBids
-    });
+    const newBid = async () => {
+      const bid = {
+        amount: parseInt(bidAmountInput.current?.value ?? '0'),
+        name: nameInput.current?.value,
+        auction_id: auctionId,
+        timestamp: new Date()
+      };
+
+      await fetch('/api/db/post/bids/place-new-bid', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(bid)
+      });
+
+      // Set placed bids
+      setPlacedBids([...placedBids, bid as IBids]);
+    };
+
+    newBid();
   };
 
   const handleOnChange = () => {

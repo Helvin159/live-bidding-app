@@ -1,10 +1,11 @@
 import Auctions from '@/models/Auctions';
-import AuctionListComponent from '../components/AuctionListComponent/AuctionListComponent';
+import AuctionListComponent from '@/components/AuctionListComponent/AuctionListComponent';
+import dbConnect from '@/lib/mongoose';
 
 export default async function Home() {
+  await dbConnect();
   const auctions = await Auctions.find({});
 
-  console.log('auctions', auctions);
   return (
     <>
       <section className='tw-max-w-3xl tw-mx-auto tw-text-center'>

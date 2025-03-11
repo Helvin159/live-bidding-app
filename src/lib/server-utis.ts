@@ -6,7 +6,7 @@ export const getBidsByAuctionId = async (
   auctionId: string,
   setPlacedBids: Dispatch<SetStateAction<IBids[]>>
 ) => {
-  const res = await fetch('/api/db/post/bids-by-auction-id', {
+  const res = await fetch('/api/db/post/auctions/bids-by-auction-id', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -22,7 +22,7 @@ export const getAuctionById = async (
   auctionId: string,
   setAuction: Dispatch<SetStateAction<AuctionsType | null>>
 ) => {
-  const res = await fetch('/api/db/post/auction-by-id', {
+  const res = await fetch('/api/db/post/auctions/auction-by-id', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
