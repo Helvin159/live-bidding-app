@@ -599,6 +599,10 @@ video {
   justify-content: center;
 }
 
+.tw-justify-between {
+  justify-content: space-between;
+}
+
 .tw-gap-2 {
   gap: 0.5rem;
 }

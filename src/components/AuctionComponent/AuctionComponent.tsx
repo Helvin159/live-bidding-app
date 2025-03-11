@@ -4,9 +4,11 @@ import { socket } from '@/lib/socket';
 
 // Types
 import { AuctionComponentType, NewBidType } from './utils/types';
+import { AuctionsType } from '@/models/Auctions';
 
 // Utils
 import { getAuctionById, getBidsByAuctionId } from '@/lib/server-utis';
+import placeNewBid from '@/server-utils/placeNewBid';
 
 // Models
 import { IBids } from '@/models/Bids';
@@ -14,15 +16,13 @@ import { IBids } from '@/models/Bids';
 // Components
 import CurrentBids from './components/CurrentBids';
 import LatestBids from './components/LatestBids';
-import { AuctionsType } from '@/models/Auctions';
 
 const AuctionComponent = ({
   auctionId = '67cb4a0ac982beec667bb5bf'
 }: AuctionComponentType) => {
+  // State variables
   const [newBid, setNewBid] = useState<NewBidType>(null);
-  const [lastPlacedBid, setLastPlacedBid] = useState<number>(0);
   const [disableSubmit, setDisableSubmit] = useState<boolean>(false);
-  const [minBid, setMinBid] = useState<number>(0);
   const [placedBids, setPlacedBids] = useState<IBids[]>([]);
   const [auction, setAuction] = useState<AuctionsType | null>(null);
 
@@ -48,25 +48,31 @@ const AuctionComponent = ({
 
   socket.on('newBid', (bid = newBid) => {
     setPlacedBids(() => [...placedBids, bid]);
-    setMinBid(bid.amount);
 
     console.log(bid, 'new BID came in');
   });
 
-  const handleSubmit = () => {
-    const newBid = async () => {
-      const bid = {
-        amount: parseInt(bidAmountInput.current?.value ?? '0'),
-        name: nameInput.current?.value,
-        auction_id: auctionId,
-        timestamp: new Date()
-      };
+  console.log(
+    'placedBids',
+    placedBids,
+    placedBids[placedBids.length - 1]?.amount,
+    auction
+  );
 
-      await fetch('/api/db/post/bids/place-new-bid', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(bid)
-      });
+  const handleSubmit = async () => {
+    const bid = {
+      amount: parseInt(bidAmountInput.current?.value ?? '0'),
+      name: nameInput.current?.value,
+      auction_id: auctionId,
+      timestamp: new Date()
+    };
+
+    try {
+      // Place New Bid to MongoDB
+      await placeNewBid(bid);
+
+      // Emit placeBid to socket
+      socket.emit('placeBid', { auctionId, bid });
 
       // Set new bid
       setNewBid({
@@ -76,37 +82,29 @@ const AuctionComponent = ({
         timestamp: new Date()
       });
 
-      // Set latest bid
-      setLastPlacedBid(parseInt(bid.amount.toString()));
-      // Set minimum bid
-      setMinBid(parseInt(bid.amount.toString()));
       // Set placed bids
       setPlacedBids([...placedBids, bid as IBids]);
 
-      // emit placeBid to socket
+      // Reset input refs
       if (bidAmountInput.current && nameInput.current) {
         // Reset bidAmountInput
         bidAmountInput.current.value = '';
         nameInput.current.value = '';
       }
-
-      socket.emit('placeBid', { auctionId, bid });
-    };
-
-    newBid();
+    } catch (error: unknown) {
+      console.error(error);
+    }
   };
 
   const handleOnChange = () => {
-    const latestPlacedBid = placedBids[lastPlacedBid]?.amount ?? '0';
-    const newBidToPlace = parseInt(bidAmountInput.current?.value ?? '0');
-
-    if (!newBidToPlace) {
-      setDisableSubmit(true);
-      return;
-    }
-
-    setDisableSubmit(newBidToPlace <= latestPlacedBid);
-    return;
+    // const latestPlacedBid = placedBids[placedBids.length - 1].amount;
+    // const newBidToPlace = parseInt(bidAmountInput.current?.value ?? '0');
+    // if (!newBidToPlace) {
+    //   setDisableSubmit(true);
+    //   return;
+    // }
+    // setDisableSubmit(newBidToPlace <= latestPlacedBid);
+    // return;
   };
 
   return (
@@ -118,49 +116,51 @@ const AuctionComponent = ({
           interested in purchasing a home of up $200,000
         </p>
       </section>
-      <div className='tw-w-full tw-max-w-xl tw-mx-auto'>
-        <LatestBids
-          lastPlacedBid={lastPlacedBid}
-          placedBids={placedBids}
-          newBid={newBid}
-          minBid={minBid}
-        />
-
-        <div className='tw-mx-auto tw-py-8'>
-          <label htmlFor='nameInput'>Name</label>
-          <input
-            type='text'
-            ref={nameInput}
-            id='nameInput'
-            placeholder='Name'
-            className='tw-w-full tw-h-8 tw-shadow-lg tw-rounded tw-p-2'
-          />
-        </div>
-
-        <div className='tw-mx-auto tw-py-8'>
-          <label htmlFor='bidInput'>How much will you like to bid?</label>
-          <input
-            type='number'
-            step={25}
-            ref={bidAmountInput}
-            min={placedBids[lastPlacedBid]?.amount}
-            onChange={handleOnChange}
-            id='bidInput'
-            placeholder='Bid'
-            className='tw-w-full tw-h-8 tw-shadow-lg tw-rounded tw-p-2'
-          />
-        </div>
-
+      <div className='tw-w-full tw-max-w-xl tw-mx-auto tw-flex tw-flex-row tw-justify-between tw-items-center'>
         <div>
-          <button
-            className='tw-bg-black tw-p-2 tw-shadow tw-rounded tw-text-white'
-            disabled={disableSubmit}
-            onClick={handleSubmit}
-          >
-            Place Bid
-          </button>
+          <h2 className='tw-text-2xl'>Lead Details:</h2>
 
-          <CurrentBids placedBids={placedBids} />
+          <h3>Name: {auction?.lead_name}</h3>
+          {placedBids.length > 0 && (
+            <LatestBids minBid={placedBids[placedBids.length - 1].amount} />
+          )}
+        </div>
+        <div>
+          <div className='tw-mx-auto tw-py-8'>
+            <label htmlFor='nameInput'>Name</label>
+            <input
+              type='text'
+              ref={nameInput}
+              id='nameInput'
+              placeholder='Name'
+              className='tw-w-full tw-h-8 tw-shadow-lg tw-rounded tw-p-2'
+            />
+          </div>
+
+          <div className='tw-mx-auto tw-py-8'>
+            <label htmlFor='bidInput'>How much will you like to bid?</label>
+            <input
+              type='number'
+              step={25}
+              ref={bidAmountInput}
+              onChange={handleOnChange}
+              id='bidInput'
+              placeholder='Bid'
+              className='tw-w-full tw-h-8 tw-shadow-lg tw-rounded tw-p-2'
+            />
+          </div>
+
+          <div>
+            <button
+              className='tw-bg-black tw-p-2 tw-shadow tw-rounded tw-text-white'
+              disabled={disableSubmit}
+              onClick={handleSubmit}
+            >
+              Place Bid
+            </button>
+          </div>
+
+          {placedBids.length > 0 && <CurrentBids placedBids={placedBids} />}
         </div>
       </div>
     </>
