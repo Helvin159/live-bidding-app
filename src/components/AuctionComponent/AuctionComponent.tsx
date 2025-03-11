@@ -97,14 +97,14 @@ const AuctionComponent = ({
   };
 
   const handleOnChange = () => {
-    // const latestPlacedBid = placedBids[placedBids.length - 1].amount;
-    // const newBidToPlace = parseInt(bidAmountInput.current?.value ?? '0');
-    // if (!newBidToPlace) {
-    //   setDisableSubmit(true);
-    //   return;
-    // }
-    // setDisableSubmit(newBidToPlace <= latestPlacedBid);
-    // return;
+    const latestPlacedBid = placedBids[placedBids.length - 1].amount;
+    const newBidToPlace = parseInt(bidAmountInput.current?.value ?? '0');
+    if (!newBidToPlace) {
+      setDisableSubmit(true);
+      return;
+    }
+    setDisableSubmit(newBidToPlace <= latestPlacedBid);
+    return;
   };
 
   return (
