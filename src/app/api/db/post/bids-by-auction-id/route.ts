@@ -6,16 +6,11 @@ export async function POST(req: NextRequest) {
   await dbConnect();
 
   try {
-    const body = await req.json();
+    const { auctionId } = await req.json();
+    console.log(auctionId, 'auction ID **********************');
+    const res = await Bids.find({ auction_id: auctionId });
 
-    await Bids.create({
-      name: body.name,
-      amount: body.amount,
-      auction_id: body.auction_id,
-      timestamp: new Date()
-    });
-
-    return NextResponse.json({ message: 'Success' }, { status: 200 });
+    return NextResponse.json({ message: JSON.stringify(res) }, { status: 200 });
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error(error.message);

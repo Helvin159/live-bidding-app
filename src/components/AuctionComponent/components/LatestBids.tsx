@@ -1,8 +1,9 @@
-import { NewBidType, PlacedBidsType } from '../utils/types';
+import { IBids } from '@/models/Bids';
+import { NewBidType } from '@/components/AuctionComponent/utils/types';
 
 type LatestBidsProps = {
   newBid: NewBidType;
-  placedBids: PlacedBidsType;
+  placedBids: IBids[];
   lastPlacedBid: number;
   minBid: number;
 };

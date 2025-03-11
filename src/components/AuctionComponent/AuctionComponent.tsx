@@ -6,24 +6,30 @@ import { socket } from '@/lib/socket';
 import { NewBidType } from './utils/types';
 
 // Utils
-// import placeNewBid from '@/server-utils/placeNewBid';
+import { getAuctionById, getBidsByAuctionId } from './utils/utils';
 import { onPlaceNewBid } from './utils/socketUtils';
+
+// Models
+import { IBids } from '@/models/Bids';
 
 // Components
 import CurrentBids from './components/CurrentBids';
 import LatestBids from './components/LatestBids';
-import { IBids } from '../../models/Bids';
+import { AuctionsType } from '@/models/Auctions';
 
 const AuctionComponent = ({
+  leadName = 'John Doe',
   auctionId = '67cb4a0ac982beec667bb5bf'
 }: {
+  leadName?: string;
   auctionId?: string;
 }) => {
   const [newBid, setNewBid] = useState<NewBidType>(null);
-  const [placedBids, setPlacedBids] = useState<IBids[]>([]);
   const [lastPlacedBid, setLastPlacedBid] = useState<number>(0);
   const [disableSubmit, setDisableSubmit] = useState<boolean>(false);
   const [minBid, setMinBid] = useState<number>(0);
+  const [placedBids, setPlacedBids] = useState<IBids[]>([]);
+  const [auction, setAuction] = useState<AuctionsType | null>(null);
 
   // Input Refs
   const bidAmountInput = useRef<HTMLInputElement | null>(null);
@@ -31,24 +37,17 @@ const AuctionComponent = ({
 
   useEffect(() => {
     socket.emit('joinAuction', auctionId);
-
-    const getAllBids = async () => {
-      const res = await fetch('/api/db/get/all-bids');
-      const data = await res.json();
-      console.log(data);
-
-      setPlacedBids(JSON.parse(data.message));
-    };
-
-    getAllBids();
+    getAuctionById(auctionId, setAuction);
+    getBidsByAuctionId(auctionId, setPlacedBids);
 
     return () => {
       socket.off('newBid');
       socket.emit('leaveAuction', auctionId);
     };
   }, [newBid, placedBids.length, disableSubmit, auctionId]);
+  console.log(auction);
 
-  console.log(placedBids);
+  console.log('pacedBids', placedBids);
 
   socket.on('newBid', (bid = newBid) => {
     setPlacedBids(() => [...placedBids, bid]);
@@ -60,12 +59,6 @@ const AuctionComponent = ({
   const handleSubmit = () => {
     console.log('handleSubmit', placedBids, bidAmountInput?.current?.value);
     console.log(bidAmountInput.current?.value);
-
-    // placeNewBid({
-    //   name: nameInput.current?.value ?? '',
-    //   amount: parseInt(bidAmountInput.current?.value ?? '0'),
-    //   auctionId
-    // });
 
     onPlaceNewBid({
       auctionId,
@@ -102,51 +95,60 @@ const AuctionComponent = ({
   };
 
   return (
-    <div className='tw-w-full tw-max-w-xl tw-mx-auto'>
-      <LatestBids
-        lastPlacedBid={lastPlacedBid}
-        placedBids={placedBids}
-        newBid={newBid}
-        minBid={minBid}
-      />
-
-      <div className='tw-mx-auto tw-py-8'>
-        <label htmlFor='nameInput'>Name</label>
-        <input
-          type='text'
-          ref={nameInput}
-          id='nameInput'
-          placeholder='Name'
-          className='tw-w-full tw-h-8 tw-shadow-lg tw-rounded tw-p-2'
+    <>
+      <section className='tw-max-w-3xl tw-p-8 tw-mx-auto tw-text-center'>
+        <h1 className='tw-text-3xl'>Welcome to the Auction</h1>
+        <p>
+          This auction is being held for lead named: {leadName} interested in
+          purchasing a home of up $200,000
+        </p>
+      </section>
+      <div className='tw-w-full tw-max-w-xl tw-mx-auto'>
+        <LatestBids
+          lastPlacedBid={lastPlacedBid}
+          placedBids={placedBids}
+          newBid={newBid}
+          minBid={minBid}
         />
-      </div>
 
-      <div className='tw-mx-auto tw-py-8'>
-        <label htmlFor='bidInput'>How much will you like to bid?</label>
-        <input
-          type='number'
-          step={25}
-          ref={bidAmountInput}
-          min={placedBids[lastPlacedBid]?.amount}
-          onChange={handleOnChange}
-          id='bidInput'
-          placeholder='Bid'
-          className='tw-w-full tw-h-8 tw-shadow-lg tw-rounded tw-p-2'
-        />
-      </div>
+        <div className='tw-mx-auto tw-py-8'>
+          <label htmlFor='nameInput'>Name</label>
+          <input
+            type='text'
+            ref={nameInput}
+            id='nameInput'
+            placeholder='Name'
+            className='tw-w-full tw-h-8 tw-shadow-lg tw-rounded tw-p-2'
+          />
+        </div>
 
-      <div>
-        <button
-          className='tw-bg-black tw-p-2 tw-shadow tw-rounded tw-text-white'
-          disabled={disableSubmit}
-          onClick={handleSubmit}
-        >
-          Place Bid
-        </button>
+        <div className='tw-mx-auto tw-py-8'>
+          <label htmlFor='bidInput'>How much will you like to bid?</label>
+          <input
+            type='number'
+            step={25}
+            ref={bidAmountInput}
+            min={placedBids[lastPlacedBid]?.amount}
+            onChange={handleOnChange}
+            id='bidInput'
+            placeholder='Bid'
+            className='tw-w-full tw-h-8 tw-shadow-lg tw-rounded tw-p-2'
+          />
+        </div>
 
-        <CurrentBids placedBids={placedBids} />
+        <div>
+          <button
+            className='tw-bg-black tw-p-2 tw-shadow tw-rounded tw-text-white'
+            disabled={disableSubmit}
+            onClick={handleSubmit}
+          >
+            Place Bid
+          </button>
+
+          <CurrentBids placedBids={placedBids} />
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

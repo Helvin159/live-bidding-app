@@ -1,21 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongoose';
-import Bids from '@/models/Bids';
+import Auctions from '@/models/Auctions';
 
 export async function POST(req: NextRequest) {
   await dbConnect();
 
   try {
-    const body = await req.json();
+    const { auctionId } = await req.json();
+    const res = await Auctions.find({ _id: auctionId });
 
-    await Bids.create({
-      name: body.name,
-      amount: body.amount,
-      auction_id: body.auction_id,
-      timestamp: new Date()
-    });
-
-    return NextResponse.json({ message: 'Success' }, { status: 200 });
+    return NextResponse.json({ message: JSON.stringify(res) }, { status: 200 });
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error(error.message);

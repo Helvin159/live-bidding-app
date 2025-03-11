@@ -1,6 +1,6 @@
-import { PlacedBidsType } from '../utils/types';
+import { IBids } from '../../../models/Bids';
 
-function CurrentBids({ placedBids }: { placedBids: PlacedBidsType }) {
+function CurrentBids({ placedBids }: { placedBids: IBids[] | [] }) {
   return (
     <>
       <div style={{ padding: '1rem 0 ' }}>

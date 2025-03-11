@@ -1,6 +1,8 @@
+import { IBids } from './../../../models/Bids';
 import { Dispatch, RefObject, SetStateAction } from 'react';
 import { socket } from '../../../lib/socket';
 import { NewBidType, PlacedBidsType } from './types';
+
 // import { MongoClient } from 'mongodb';
 
 // const mongoClient = new MongoClient(
@@ -60,7 +62,7 @@ export function onNewBidPlaced({
   });
 }
 
-export function onPlaceNewBid({
+export async function onPlaceNewBid({
   auctionId,
   minBid,
   placedBids,
@@ -73,39 +75,50 @@ export function onPlaceNewBid({
 }: {
   auctionId: string;
   minBid: number;
-  placedBids: PlacedBidsType;
+  placedBids: IBids[];
   bidAmountInput: RefObject<HTMLInputElement | null>;
   nameInput: RefObject<HTMLInputElement | null>;
   setMinBid: Dispatch<SetStateAction<number>>;
   setLastPlacedBid: Dispatch<SetStateAction<number>>;
   setNewBid: Dispatch<SetStateAction<NewBidType>>;
-  setPlacedBids: Dispatch<SetStateAction<PlacedBidsType>>;
+  setPlacedBids: Dispatch<SetStateAction<IBids[]>>;
 }) {
   if (bidAmountInput.current?.value) {
     if (parseInt(bidAmountInput.current.value) >= minBid) {
       console.log(bidAmountInput.current?.value);
+
       const bid = {
-        amount: bidAmountInput.current?.value,
-        bidder: nameInput.current?.value,
-        auctionId
+        amount: parseInt(bidAmountInput.current?.value),
+        name: nameInput.current?.value,
+        auction_id: auctionId,
+        timestamp: new Date()
       };
 
+      // Reset bidAmountInput
+      bidAmountInput.current.value = '';
+
+      // emit placeBid to socket
       socket.emit('placeBid', { auctionId, bid });
+
+      await fetch('/api/post/new-bid', {
+        method: 'POST',
+        body: JSON.stringify(bid)
+      });
+
+      // Set new bid
       setNewBid({
-        amount: bid.amount,
+        amount: bid.amount.toString(),
         name: nameInput.current?.value,
         auction_id: auctionId,
         timestamp: new Date()
       });
 
-      bidAmountInput.current.value = '';
-
       // Set latest bid
-      setLastPlacedBid(parseInt(bid.amount));
+      setLastPlacedBid(parseInt(bid.amount.toString()));
       // Set minimum bid
-      setMinBid(parseInt(bid.amount));
+      setMinBid(parseInt(bid.amount.toString()));
       // Set placed bids
-      setPlacedBids([...placedBids, bid]);
+      setPlacedBids([...placedBids, bid as IBids]);
     }
 
     // console.log('placeNewBid', placedBids, bidAmountInput?.current?.value);

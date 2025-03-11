@@ -12,7 +12,7 @@ export default function RootLayout({
     <html lang='en'>
       <body>
         <Header />
-        <main>{children}</main>
+        <main className='tw-mx-auto tw-max-w-7xl'>{children}</main>
       </body>
     </html>
   );
