@@ -6,7 +6,7 @@ import { socket } from '@/lib/socket';
 import { NewBidType } from './utils/types';
 
 // Utils
-import { getAuctionById, getBidsByAuctionId } from './utils/utils';
+import { getAuctionById, getBidsByAuctionId } from '@/lib/server-utis';
 import { onPlaceNewBid } from './utils/socketUtils';
 
 // Models
@@ -16,14 +16,14 @@ import { IBids } from '@/models/Bids';
 import CurrentBids from './components/CurrentBids';
 import LatestBids from './components/LatestBids';
 import { AuctionsType } from '@/models/Auctions';
-
-const AuctionComponent = ({
-  leadName = 'John Doe',
-  auctionId = '67cb4a0ac982beec667bb5bf'
-}: {
+type AuctionComponentType = {
   leadName?: string;
   auctionId?: string;
-}) => {
+};
+
+const AuctionComponent = ({
+  auctionId = '67cb4a0ac982beec667bb5bf'
+}: AuctionComponentType) => {
   const [newBid, setNewBid] = useState<NewBidType>(null);
   const [lastPlacedBid, setLastPlacedBid] = useState<number>(0);
   const [disableSubmit, setDisableSubmit] = useState<boolean>(false);
@@ -36,8 +36,13 @@ const AuctionComponent = ({
   const nameInput = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
+    // Emit joinAuction
     socket.emit('joinAuction', auctionId);
+
+    // Get auction with auctionId
     getAuctionById(auctionId, setAuction);
+
+    // Get all bids with the auctionId
     getBidsByAuctionId(auctionId, setPlacedBids);
 
     return () => {
@@ -45,9 +50,6 @@ const AuctionComponent = ({
       socket.emit('leaveAuction', auctionId);
     };
   }, [newBid, placedBids.length, disableSubmit, auctionId]);
-  console.log(auction);
-
-  console.log('pacedBids', placedBids);
 
   socket.on('newBid', (bid = newBid) => {
     setPlacedBids(() => [...placedBids, bid]);
@@ -77,14 +79,6 @@ const AuctionComponent = ({
     const latestPlacedBid = placedBids[lastPlacedBid]?.amount ?? '0';
     const newBidToPlace = parseInt(bidAmountInput.current?.value ?? '0');
 
-    console.log(
-      'on change',
-      latestPlacedBid,
-      bidAmountInput.current?.value,
-      newBidToPlace < latestPlacedBid,
-      !newBidToPlace
-    );
-
     if (!newBidToPlace) {
       setDisableSubmit(true);
       return;
@@ -99,8 +93,8 @@ const AuctionComponent = ({
       <section className='tw-max-w-3xl tw-p-8 tw-mx-auto tw-text-center'>
         <h1 className='tw-text-3xl'>Welcome to the Auction</h1>
         <p>
-          This auction is being held for lead named: {leadName} interested in
-          purchasing a home of up $200,000
+          This auction is being held for lead named: {auction?.lead_name}{' '}
+          interested in purchasing a home of up $200,000
         </p>
       </section>
       <div className='tw-w-full tw-max-w-xl tw-mx-auto'>
