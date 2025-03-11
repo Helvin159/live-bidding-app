@@ -1,25 +1,14 @@
-export const placeNewBid = async ({
-  name,
-  amount,
-  auctionId
-}: {
-  name: string;
-  amount: number;
-  auctionId: string;
-}) => {
-  const res = await fetch('/api/db/post/new-bid', {
+const newBid = async () => {
+  const bid = {
+    amount: parseInt(bidAmountInput.current?.value ?? '0'),
+    name: nameInput.current?.value,
+    auction_id: auctionId,
+    timestamp: new Date()
+  };
+
+  await fetch('/api/db/post/bids/place-new-bid', {
     method: 'POST',
-    body: JSON.stringify({
-      name: name,
-      amount: amount,
-      auction_id: auctionId,
-      timestamp: new Date()
-    })
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(bid)
   });
-
-  const data = await res.json();
-
-  return data;
 };
-
-export default placeNewBid;

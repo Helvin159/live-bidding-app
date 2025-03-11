@@ -7,7 +7,6 @@ import { AuctionComponentType, NewBidType } from './utils/types';
 
 // Utils
 import { getAuctionById, getBidsByAuctionId } from '@/lib/server-utis';
-import { onPlaceNewBid } from './utils/socketUtils';
 
 // Models
 import { IBids } from '@/models/Bids';
@@ -28,8 +27,8 @@ const AuctionComponent = ({
   const [auction, setAuction] = useState<AuctionsType | null>(null);
 
   // Input Refs
-  const bidAmountInput = useRef<HTMLInputElement | null>(null);
-  const nameInput = useRef<HTMLInputElement | null>(null);
+  const bidAmountInput = useRef<HTMLInputElement>(null);
+  const nameInput = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     // Emit joinAuction
@@ -55,9 +54,6 @@ const AuctionComponent = ({
   });
 
   const handleSubmit = () => {
-    console.log('handleSubmit', placedBids, bidAmountInput?.current?.value);
-    console.log(bidAmountInput.current?.value);
-
     const newBid = async () => {
       const bid = {
         amount: parseInt(bidAmountInput.current?.value ?? '0'),
@@ -72,8 +68,29 @@ const AuctionComponent = ({
         body: JSON.stringify(bid)
       });
 
+      // Set new bid
+      setNewBid({
+        amount: bid.amount.toString(),
+        name: nameInput.current?.value,
+        auction_id: auctionId,
+        timestamp: new Date()
+      });
+
+      // Set latest bid
+      setLastPlacedBid(parseInt(bid.amount.toString()));
+      // Set minimum bid
+      setMinBid(parseInt(bid.amount.toString()));
       // Set placed bids
       setPlacedBids([...placedBids, bid as IBids]);
+
+      // emit placeBid to socket
+      if (bidAmountInput.current && nameInput.current) {
+        // Reset bidAmountInput
+        bidAmountInput.current.value = '';
+        nameInput.current.value = '';
+      }
+
+      socket.emit('placeBid', { auctionId, bid });
     };
 
     newBid();
