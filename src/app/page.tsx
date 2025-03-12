@@ -1,4 +1,4 @@
-import Auctions, { AuctionsType } from '../models/Auctions';
+import Auctions from '../models/Auctions';
 import AuctionListComponent from '../components/AuctionListComponent/AuctionListComponent';
 import dbConnect from '../lib/mongoose';
 
