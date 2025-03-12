@@ -114,10 +114,6 @@ const AuctionComponent = ({
     <>
       <section className='tw-max-w-3xl tw-p-8 tw-mx-auto tw-text-center'>
         <h1 className='tw-text-3xl'>Welcome to the Auction</h1>
-        <p>
-          This auction is being held for lead named: {auction?.lead_name}{' '}
-          interested in purchasing a home of up $200,000
-        </p>
       </section>
       <div className='tw-w-full tw-max-w-xl tw-mx-auto tw-flex tw-justify-around tw-items-baseline tw-flex-wrap tw-p-4'>
         <div className='tw-basis-full md:tw-basis-1/2'>
