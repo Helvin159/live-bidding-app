@@ -7,8 +7,11 @@ import { AuctionComponentType, NewBidType } from './utils/types';
 import { AuctionsType } from '../../models/Auctions';
 
 // Utils
-import { getAuctionById, getBidsByAuctionId } from '../../lib/server-utis';
-import placeNewBid from '../../server-utils/placeNewBid';
+import {
+  getAuctionById,
+  getBidsByAuctionId,
+  placeNewBid
+} from '../../lib/server-utis';
 
 // Models
 import { IBids } from '../../models/Bids';
@@ -116,16 +119,18 @@ const AuctionComponent = ({
           interested in purchasing a home of up $200,000
         </p>
       </section>
-      <div className='tw-w-full tw-max-w-xl tw-mx-auto tw-flex tw-flex-row tw-justify-between tw-items-center'>
-        <div>
+      <div className='tw-w-full tw-max-w-xl tw-mx-auto tw-flex tw-justify-around tw-items-baseline tw-flex-wrap tw-p-4'>
+        <div className='tw-basis-full md:tw-basis-1/2'>
           <h2 className='tw-text-2xl'>Lead Details:</h2>
-
-          <h3>Name: {auction?.lead_name}</h3>
+          <div className='tw-pb-4'>
+            <h3>Name: {auction?.lead_name}</h3>
+            <p>Description: {auction?.description}</p>
+          </div>
           {placedBids.length > 0 && (
             <LatestBids minBid={placedBids[placedBids.length - 1].amount} />
           )}
         </div>
-        <div>
+        <div className='tw-basis-full md:tw-basis-1/2'>
           <div className='tw-mx-auto tw-py-8'>
             <label htmlFor='nameInput'>Name</label>
             <input

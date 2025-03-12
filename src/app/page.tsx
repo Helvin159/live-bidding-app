@@ -1,10 +1,17 @@
-import Auctions from '../models/Auctions';
+import Auctions, { AuctionsType } from '../models/Auctions';
 import AuctionListComponent from '../components/AuctionListComponent/AuctionListComponent';
 import dbConnect from '../lib/mongoose';
 
 export default async function Home() {
   await dbConnect();
-  const auctions = await Auctions.find({});
+  const auctions = await Auctions.find();
+
+  console.log(
+    auctions.find((i) => {
+      return i.id === '67d1d7237204e2ccc33d4356';
+    }),
+    auctions
+  );
 
   return (
     <>

@@ -7,9 +7,13 @@ export async function POST(req: NextRequest) {
 
   try {
     const { auctionId } = await req.json();
-    const res = await Auctions.find({ _id: auctionId });
+    const res = await Auctions.find({});
+    const targetAuction = res.find(({ id }) => id === auctionId);
 
-    return NextResponse.json({ message: JSON.stringify(res) }, { status: 200 });
+    return NextResponse.json(
+      { message: JSON.stringify(targetAuction) },
+      { status: 200 }
+    );
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error(error.message);
