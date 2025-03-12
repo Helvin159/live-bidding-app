@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import dbConnect from '@/lib/mongoose';
-import Auctions from '@/models/Auctions';
+import dbConnect from '../../../../../../lib/mongoose';
+import Auctions from '../../../../../../models/Auctions';
 
 export async function POST(req: NextRequest) {
   await dbConnect();

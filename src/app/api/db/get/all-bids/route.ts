@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import dbConnect from '@/lib/mongoose';
-import Bids from '@/models/Bids';
+import dbConnect from '../../../../../lib/mongoose';
+import Bids from '../../../../../models/Bids';
 
 export async function GET() {
   await dbConnect();

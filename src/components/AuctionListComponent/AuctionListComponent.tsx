@@ -1,5 +1,5 @@
-import { AuctionsType } from '@/models/Auctions';
 import Link from 'next/link';
+import { AuctionsType } from '../../models/Auctions';
 
 const AuctionListComponent = ({ auctions }: { auctions: AuctionsType[] }) => {
   return (

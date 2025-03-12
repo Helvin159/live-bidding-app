@@ -1,6 +1,6 @@
-import Auctions from '@/models/Auctions';
-import AuctionListComponent from '@/components/AuctionListComponent/AuctionListComponent';
-import dbConnect from '@/lib/mongoose';
+import Auctions from '../models/Auctions';
+import AuctionListComponent from '../components/AuctionListComponent/AuctionListComponent';
+import dbConnect from '../lib/mongoose';
 
 export default async function Home() {
   await dbConnect();

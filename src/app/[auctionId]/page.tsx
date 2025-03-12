@@ -1,4 +1,4 @@
-import AuctionComponent from '@/components/AuctionComponent/AuctionComponent';
+import AuctionComponent from '../../components/AuctionComponent/AuctionComponent';
 
 const Bidding = async ({
   params

@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction } from 'react';
-import { IBids } from '@/models/Bids';
-import { AuctionsType } from '@/models/Auctions';
+import { IBids } from '../models/Bids';
+import { AuctionsType } from '../models/Auctions';
 
 export const getBidsByAuctionId = async (
   auctionId: string,

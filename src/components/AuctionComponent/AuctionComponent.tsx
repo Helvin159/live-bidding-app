@@ -1,17 +1,17 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { socket } from '@/lib/socket';
+import { socket } from '../../lib/socket';
 
 // Types
 import { AuctionComponentType, NewBidType } from './utils/types';
-import { AuctionsType } from '@/models/Auctions';
+import { AuctionsType } from '../../models/Auctions';
 
 // Utils
-import { getAuctionById, getBidsByAuctionId } from '@/lib/server-utis';
-import placeNewBid from '@/server-utils/placeNewBid';
+import { getAuctionById, getBidsByAuctionId } from '../../lib/server-utis';
+import placeNewBid from '../../server-utils/placeNewBid';
 
 // Models
-import { IBids } from '@/models/Bids';
+import { IBids } from '../../models/Bids';
 
 // Components
 import CurrentBids from './components/CurrentBids';
