@@ -7,7 +7,7 @@ const AuctionListComponent = ({ auctions }: { auctions: AuctionsType[] }) => {
       {auctions &&
         auctions.map((i: AuctionsType, k: number) => (
           <div key={k} className='tw-p-4'>
-            <Link href={`/${i._id}`}>{i.lead_name}</Link>
+            <Link href={`/${i.id}`}>{i.lead_name}</Link>
           </div>
         ))}
     </div>
